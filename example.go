@@ -20,8 +20,15 @@ func main() {
    conn, err := SherryDB.NewSherryDB(dbconnect)
    if err != nil {
       fmt.Printf("%v", err)
-   } else {
-      fmt.Printf("Connect ok %v", conn)
+      return 
+   } 
+   orgs, err := conn.DoreFetchHash("select * from organizations")
+   if err != nil {
+      fmt.Printf("%v", err)
+      return
+   } 
+   for _, d := range orgs {
+      fmt.Printf("%v", d["Name"])
    }
    conn.Disconnect() 
 }
