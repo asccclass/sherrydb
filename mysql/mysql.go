@@ -25,17 +25,17 @@ func (m *MySQL) Disconnect() {
    defer m.Conn.Close()
 }
 
-func (m *MySQL) DoreFetchHash(sqlString string)([]map[string]interface{}, error) {
+func (m *MySQL) DoreFetchHash(sqlString string) (string, error) {
    tableData := make([]map[string]interface{}, 0)
 
    rows, err := m.Conn.Query(sqlString)
    if err != nil {
-      return tableData, err
+      return "", err
    }
    defer rows.Close()
    columns, err := rows.Columns()
    if err != nil {
-       return tableData, err
+       return "", err
    }
    count := len(columns)
    values := make([]interface{}, count)
@@ -59,15 +59,11 @@ func (m *MySQL) DoreFetchHash(sqlString string)([]map[string]interface{}, error)
        }
        tableData = append(tableData, entry)
    }
-/*
    jsonData, err := json.Marshal(tableData)
    if err != nil {
        return "", err
    }
-   fmt.Println(string(jsonData))
    return string(jsonData), nil 
-*/
-   return tableData, nil 
 }
 
 func NewSherryDB(config DBConnect) (*MySQL, error)  {
