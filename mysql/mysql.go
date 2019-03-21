@@ -4,6 +4,7 @@ import (
    "database/sql"
    _ "github.com/go-sql-driver/mysql"
    "encoding/json"
+   "bytes"
    "fmt"
 )
 
@@ -80,7 +81,20 @@ func NewSherryDB(config DBConnect) (*MySQL, error)  {
       return nil, fmt.Errorf("Db Server setup params is wrong.")
    }
 
-   conn, err := sql.Open(config.DBMS, config.DbLogin + ":" + config.DbPasswd + "@tcp("+config.DbServer+":" + config.DbPort+")/"+config.DbName+"?charset=utf8")
+   var b bytes.Buffer
+   b.WriteString(config.DbLogin) 
+   b.WriteString(":") 
+   b.WriteString(config.DbPasswd) 
+   b.WriteString("@tcp(") 
+   b.WriteString(config.DbServer) 
+   b.WriteString(":") 
+   b.WriteString(config.DbPort) 
+   b.WriteString(")/") 
+   b.WriteString(config.DbName) 
+   b.WriteString("?charset=utf8") 
+
+   conn, err := sql.Open(config.DBMS, b)
+   // conn, err := sql.Open(config.DBMS, config.DbLogin + ":" + config.DbPasswd + "@tcp("+config.DbServer+":" + config.DbPort+")/"+config.DbName+"?charset=utf8")
    if err != nil {
       return nil, err
    }
