@@ -93,7 +93,7 @@ func NewSherryDB(config DBConnect) (*MySQL, error)  {
    b.WriteString(config.DbName) 
    b.WriteString("?charset=utf8") 
 
-   conn, err := sql.Open(config.DBMS, b)
+   conn, err := sql.Open(config.DBMS, b.String())
    // conn, err := sql.Open(config.DBMS, config.DbLogin + ":" + config.DbPasswd + "@tcp("+config.DbServer+":" + config.DbPort+")/"+config.DbName+"?charset=utf8")
    if err != nil {
       return nil, err
