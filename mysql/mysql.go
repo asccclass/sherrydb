@@ -8,12 +8,12 @@ import (
 
 // 資料庫連線設定
 type DBConnect struct {
-   DBMS     string
-   DbServer string
-   DbPort   string
-   DbName   string
-   DbLogin  string
-   DbPasswd string
+   DBMS     string	// 資料庫管理系統名稱（皆小寫）
+   DbServer string	// 資料庫主機
+   DbPort   string	// 資料庫主機對外服務port
+   DbName   string	// 資料庫名稱
+   DbLogin  string	// 登入帳號
+   DbPasswd string	// 登入密碼
 }
 
 type MySQL struct {
@@ -70,6 +70,7 @@ func (m *MySQL) DoreFetchHash(sqlString string)([]map[string]interface{}, error)
    return tableData, nil 
 }
 
+// 建立資料庫連線
 func NewSherryDB(config DBConnect) (*MySQL, error)  {
    if len(config.DBMS) == 0 {
       config.DBMS = "mysql"
