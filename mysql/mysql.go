@@ -3,6 +3,7 @@ package SherryDB
 import (
    "database/sql"
    _ "github.com/go-sql-driver/mysql"
+   "encoding/json"
    "fmt"
 )
 
@@ -30,7 +31,7 @@ func (m *MySQL) DoreFetchHash(sqlString string) (string, error) {
 
    rows, err := m.Conn.Query(sqlString)
    if err != nil {
-      return "", err
+      return "", fmt.Errorf("Exec SQL error:%v", err)
    }
    defer rows.Close()
    columns, err := rows.Columns()
