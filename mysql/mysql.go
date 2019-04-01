@@ -4,6 +4,7 @@ import (
    "database/sql"
    _ "github.com/go-sql-driver/mysql"
    "encoding/json"
+   "reflect"
    "bytes"
    "fmt"
 )
@@ -19,12 +20,34 @@ type DBConnect struct {
 }
 
 type MySQL struct {
+   Config DBConnect
    Name string
    Conn *sql.DB
 }
 
 func (m *MySQL) Disconnect() {
    defer m.Conn.Close()
+}
+
+func (m *MySQL) DoreSelOne(sql string, t interface{}, cond ...interface{}) (val interface{}, err error) {
+    s := reflect.ValueOf(t).Elem()
+
+    onerow := make([]interface{}, s.NumField())
+    for i := 0; i < s.NumField(); i++ {
+        onerow[i] = s.Field(i).Addr().Interface()
+    }
+
+    stmt, err := m.Conn.Prepare(sql)
+    if err != nil {
+        return nil, err
+    }
+    defer stmt.Close()
+    row := stmt.QueryRow(cond...)
+    err = row.Scan(onerow...)
+    if err != nil {
+        return nil, err
+    }
+    return t, nil
 }
 
 func (m *MySQL) DoreFetchHash(sqlString string) (string, error) {
@@ -68,38 +91,45 @@ func (m *MySQL) DoreFetchHash(sqlString string) (string, error) {
    return string(jsonData), nil 
 }
 
-// 建立資料庫連線
-func NewSherryDB(config DBConnect) (*MySQL, error)  {
+func (m *MySQL) Database(config DBConnect) (error) {
    if len(config.DBMS) == 0 {
       config.DBMS = "mysql"
    }
    if len(config.DbPort) == 0 {
       config.DbPort = "3306"
    }
-
    if config.DbServer == "" || config.DbName == "" || config.DbLogin == "" || config.DbPasswd == "" {
-      return nil, fmt.Errorf("Db Server setup params is wrong.")
+      return fmt.Errorf("Db Server setup params is wrong.")
    }
 
    var b bytes.Buffer
-   b.WriteString(config.DbLogin) 
-   b.WriteString(":") 
-   b.WriteString(config.DbPasswd) 
-   b.WriteString("@tcp(") 
-   b.WriteString(config.DbServer) 
-   b.WriteString(":") 
-   b.WriteString(config.DbPort) 
-   b.WriteString(")/") 
-   b.WriteString(config.DbName) 
-   b.WriteString("?charset=utf8") 
+   b.WriteString(config.DbLogin)
+   b.WriteString(":")
+   b.WriteString(config.DbPasswd)
+   b.WriteString("@tcp(")
+   b.WriteString(config.DbServer)
+   b.WriteString(":")
+   b.WriteString(config.DbPort)
+   b.WriteString(")/")
+   b.WriteString(config.DbName)
+   b.WriteString("?charset=utf8")
 
    conn, err := sql.Open(config.DBMS, b.String())
-   // conn, err := sql.Open(config.DBMS, config.DbLogin + ":" + config.DbPasswd + "@tcp("+config.DbServer+":" + config.DbPort+")/"+config.DbName+"?charset=utf8")
    if err != nil {
+       return err
+   }
+   m.Conn = conn 
+   m.Config = config
+   return nil
+}
+
+// 建立資料庫連線
+func NewSherryDB(config DBConnect) (*MySQL, error)  {
+   mysql := MySQL{}
+
+   if err := mysql.Database(config); err != nil {
       return nil, err
    }
-   return &MySQL {
-      Name: config.DBMS,
-      Conn: conn,
-   }, nil
+
+   return &mysql, nil
 }
