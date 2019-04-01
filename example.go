@@ -27,8 +27,11 @@ func main() {
       fmt.Printf("%v", err)
       return
    } 
+   fmt.Printf("%v\n", orgs)
+/*
    for _, d := range orgs {
-      fmt.Printf("%v", d["Name"])
+      fmt.Printf("%v\n", string(d))
    }
+*/
    conn.Disconnect() 
 }
