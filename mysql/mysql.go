@@ -11,12 +11,12 @@ import (
 
 // 資料庫連線設定
 type DBConnect struct {
-   DBMS     string	// 資料庫管理系統名稱（皆小寫）
-   DbServer string	// 資料庫主機
-   DbPort   string	// 資料庫主機對外服務port
-   DbName   string	// 資料庫名稱
-   DbLogin  string	// 登入帳號
-   DbPasswd string	// 登入密碼
+   DBMS     string   // 資料庫管理系統名稱（皆小寫）
+   DbServer string   // 資料庫主機
+   DbPort   string   // 資料庫主機對外服務port
+   DbName   string   // 資料庫名稱
+   DbLogin  string   // 登入帳號
+   DbPasswd string   // 登入密碼
 }
 
 type MySQL struct {
@@ -25,10 +25,7 @@ type MySQL struct {
    Conn *sql.DB
 }
 
-func (m *MySQL) Disconnect() {
-   defer m.Conn.Close()
-}
-
+// 取得單筆資料
 func (m *MySQL) DoreSelOne(sql string, t interface{}, cond ...interface{}) (val interface{}, err error) {
     s := reflect.ValueOf(t).Elem()
 
@@ -50,6 +47,8 @@ func (m *MySQL) DoreSelOne(sql string, t interface{}, cond ...interface{}) (val 
     return t, nil
 }
 
+// 取得多筆資料
+// 採用SQL直接執行，是較不安全的作法
 func (m *MySQL) DoreFetchHash(sqlString string) (string, error) {
    tableData := make([]map[string]interface{}, 0)
 
@@ -91,6 +90,70 @@ func (m *MySQL) DoreFetchHash(sqlString string) (string, error) {
    return string(jsonData), nil 
 }
 
+func (m *MySQL) SelMultiple(sql string, t interface{}, cond ...interface{}) (*[]interface{}, error) {
+   stmt, err := m.Conn.Prepare(sql)
+   if err != nil {
+      return nil, err
+   }
+   defer stmt.Close()
+   rows, err := stmt.Query(cond...)
+   if err != nil {
+      return nil, err
+   }
+   defer rows.Close()
+
+   vals := make([]interface{}, 0)
+   s := reflect.ValueOf(t).Elem()
+   row := make([]interface{}, s.NumField())
+   for i := 0; i < s.NumField(); i++ {
+      row[i] = s.Field(i).Addr().Interface()
+   }
+   for rows.Next() {
+      err = rows.Scan(row...)
+      if err != nil {
+         return nil, err
+      }
+      vals = append(vals, s.Interface())
+   }
+   return &vals, nil
+}
+
+// 執行SQL指令
+func (m *MySQL) Exec(sql string, cond ...interface{}) (interface{}, error) {
+   stmt, err := m.Conn.Prepare(sql)
+   if err != nil {
+      return nil, fmt.Errorf("Prepare SQL error: %v", err)
+   }
+   res, err := stmt.Exec(cond...)
+   defer stmt.Close()
+   if err != nil {
+      return nil, err
+   }
+   id, err := res.LastInsertId()
+   if err != nil {
+      return nil, err
+   }
+   return id, nil
+}
+
+// 判斷資料是否存在
+func (m *MySQL) RowExists(sqlstr string, args ...interface{}) bool {
+   var exists interface{}
+   row := m.Conn.QueryRow(sqlstr, args...)
+   err := row.Scan(&exists)
+   if err != nil && err != sql.ErrNoRows {
+      return true
+   } else {
+      return false
+   }
+}
+
+// 結束資料庫連線
+func (m *MySQL) Disconnect() {
+   defer m.Conn.Close()
+}
+
+// 建立資料庫連線 aka doreconnect()
 func (m *MySQL) Database(config DBConnect) (error) {
    if len(config.DBMS) == 0 {
       config.DBMS = "mysql"
