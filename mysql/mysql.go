@@ -139,13 +139,13 @@ func (m *MySQL) Exec(sql string, cond ...interface{}) (interface{}, error) {
 // 判斷資料是否存在
 func (m *MySQL) RowExists(sqlstr string, args ...interface{}) bool {
    var exists interface{}
-   row := m.Conn.QueryRow(sqlstr, args...)
+   s := fmt.Sprintf("select exists(%s)", sqlstr)
+   row := m.Conn.QueryRow(s, args...)
    err := row.Scan(&exists)
    if err != nil && err != sql.ErrNoRows {
       return true
-   } else {
-      return false
-   }
+   } 
+   return exists.(bool)
 }
 
 // 結束資料庫連線
