@@ -6,7 +6,8 @@
 go get github.com/asccclass/sherrydb/mysql
 ```
 
-* example
+### Usage
+* Connect database
 ```
 package main
 
@@ -34,7 +35,16 @@ func main() {
    } else {
       fmt.Printf("Connect ok %v", conn)
    }
+}
+```
 
-
+* DoreSelOne
+```
+X := Ranks{}
+val, err := conn.DoreSelOne("select * from rank where rankID=?", &X, rankID)
+if err != nil {
+   w.WriteHeader(http.StatusInternalServerError)
+   fmt.Fprintf(w, "{\"errMsg\": \"Record not found.\"}")
+   return
 }
 ```
