@@ -154,9 +154,9 @@ rows, err := conn.Conn.Query("select * from address where customerID=?", id)
 */
    if err != nil {
       if err == sql.ErrNoRows {  // 不存在
-         existis = false
+         exists = false
       } else {
-         existis = true
+         exists = true
       }
    } 
    return exists
