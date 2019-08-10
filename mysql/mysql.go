@@ -136,14 +136,28 @@ func (m *MySQL) Exec(sql string, cond ...interface{}) (interface{}, error) {
    return id, nil
 }
 
-// 判斷資料是否存在
+// 判斷資料是否存在 true)存在 false)不存在
 func (m *MySQL) RowExists(sqlstr string, args ...interface{}) bool {
    var exists bool  // interface{}
    s := fmt.Sprintf("select exists(%s)", sqlstr)
    row := m.Conn.QueryRow(s, args...)
    err := row.Scan(&exists)
-   if err != nil || err == sql.ErrNoRows {
-      return false
+/*
+rows, err := conn.Conn.Query("select * from address where customerID=?", id)
+   if err != nil {
+      if err.Error() == "sql: no rows in result set" {
+         return addrs, nil
+      } else {
+         return addrs, err
+      }
+   }
+*/
+   if err != nil {
+      if err == sql.ErrNoRows {  // 不存在
+         existis = false
+      } else {
+         existis = true
+      }
    } 
    return exists
 }
