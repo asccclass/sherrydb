@@ -1,5 +1,5 @@
 
 run:
-	DBMS=mysql DBSERVER=db4free.net DBPORT=3306 DBNAME=flowmaster DBLOGIN=andyliu DBPASSWORD=ooooo go run example.go
+	DBMS=mysql DBSERVER=MySQLx DBPORT=3306 DBNAME=laitaian DBLOGIN=root DBPASSWORD=webteam@2019 go run example.go
 test:
 	go test
