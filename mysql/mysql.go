@@ -25,8 +25,15 @@ type MySQL struct {
    Conn *sql.DB
 }
 
+func(m *MySQL) CheckAndReConnect() {
+   if err = m.Conn.Ping(); err != nil {
+      _ = m.Database(m.Config)
+   }
+}
+
 // 取得單筆資料
 func (m *MySQL) DoreSelOne(sql string, t interface{}, cond ...interface{}) (val interface{}, err error) {
+    m.CheckAndReConnect()
     s := reflect.ValueOf(t).Elem()
 
     onerow := make([]interface{}, s.NumField())
@@ -50,6 +57,7 @@ func (m *MySQL) DoreSelOne(sql string, t interface{}, cond ...interface{}) (val 
 // 取得多筆資料
 // 採用SQL直接執行，是較不安全的作法
 func (m *MySQL) DoreFetchHash(sqlString string) (string, error) {
+   m.CheckAndReConnect()
    tableData := make([]map[string]interface{}, 0)
 
    rows, err := m.Conn.Query(sqlString)
@@ -91,6 +99,7 @@ func (m *MySQL) DoreFetchHash(sqlString string) (string, error) {
 }
 
 func (m *MySQL) SelMultiple(sql string, t interface{}, cond ...interface{}) (*[]interface{}, error) {
+   m.CheckAndReConnect()
    stmt, err := m.Conn.Prepare(sql)
    if err != nil {
       return nil, err
@@ -120,6 +129,7 @@ func (m *MySQL) SelMultiple(sql string, t interface{}, cond ...interface{}) (*[]
 
 // 執行SQL指令
 func (m *MySQL) Exec(sql string, cond ...interface{}) (interface{}, error) {
+   m.CheckAndReConnect()
    stmt, err := m.Conn.Prepare(sql)
    if err != nil {
       return nil, fmt.Errorf("Prepare SQL error: %v", err)
@@ -138,6 +148,7 @@ func (m *MySQL) Exec(sql string, cond ...interface{}) (interface{}, error) {
 
 // 判斷資料是否存在
 func (m *MySQL) RowExists(sqlstr string, args ...interface{}) bool {
+   m.CheckAndReConnect()
    var exists interface{}
    row := m.Conn.QueryRow(sqlstr, args...)
    err := row.Scan(&exists)
