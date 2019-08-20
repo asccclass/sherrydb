@@ -1,7 +1,7 @@
 package main
 
 import (
-   "./mysql"
+   "github.com/asccclass/sherrydb/mysql"
    "fmt"
    "os"
 )
