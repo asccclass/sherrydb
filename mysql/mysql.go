@@ -26,7 +26,7 @@ type MySQL struct {
 }
 
 func(m *MySQL) CheckAndReConnect() {
-   if err = m.Conn.Ping(); err != nil {
+   if m.Conn.Ping() != nil {
       _ = m.Database(m.Config)
    }
 }
