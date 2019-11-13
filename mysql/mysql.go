@@ -153,16 +153,6 @@ func (m *MySQL) RowExists(sqlstr string, args ...interface{}) bool {
    s := fmt.Sprintf("select exists(%s)", sqlstr)
    row := m.Conn.QueryRow(s, args...)
    err := row.Scan(&exists)
-/*
-rows, err := conn.Conn.Query("select * from address where customerID=?", id)
-   if err != nil {
-      if err.Error() == "sql: no rows in result set" {
-         return addrs, nil
-      } else {
-         return addrs, err
-      }
-   }
-*/
    if err != nil {
       if err == sql.ErrNoRows {  // 不存在
          exists = false
@@ -171,6 +161,28 @@ rows, err := conn.Conn.Query("select * from address where customerID=?", id)
       }
    } 
    return exists
+}
+
+// bl, err := conn.RowExistsAndError(sql, user.Name)
+func(m *MySQL) RowExistsAndError(sql string, args ...interface{})(bool, error) {
+   m.CheckAndReConnect()
+   rows, err := m.Conn.Query(sql, args...)
+   if err != nil {
+      if err.Error() == "sql: no rows in result set" {
+         return false, nil
+      } else {
+         return false, err
+      }
+   }
+   count := 0
+   for rows.Next() {
+      _ = rows.Scan(&count)
+   }   
+   if count > 0 {
+      return true, nil
+   } else {
+      return false, nil
+   }
 }
 
 // 結束資料庫連線
