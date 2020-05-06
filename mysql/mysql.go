@@ -139,7 +139,7 @@ func (m *MySQL) Exec(sql string, cond ...interface{}) (interface{}, error) {
    if err != nil {
       return nil, err
    }
-   id, err := res.LastInsertId()
+   id, err := res.(sql.Result).LastInsertId()
    if err != nil {
       return nil, err
    }
