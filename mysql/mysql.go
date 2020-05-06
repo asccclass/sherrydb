@@ -128,9 +128,9 @@ func (m *MySQL) SelMultiple(sql string, t interface{}, cond ...interface{}) (*[]
 }
 
 // 執行SQL指令
-func (m *MySQL) Exec(sql string, cond ...interface{}) (interface{}, error) {
+func (m *MySQL) Exec(sqlstr string, cond ...interface{}) (interface{}, error) {
    m.CheckAndReConnect()
-   stmt, err := m.Conn.Prepare(sql)
+   stmt, err := m.Conn.Prepare(sqlstr)
    if err != nil {
       return nil, fmt.Errorf("Prepare SQL error: %v", err)
    }
