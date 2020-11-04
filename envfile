@@ -1,0 +1,16 @@
+Production=Development
+PORT=80
+DBSERVER=192.168.12.223
+DBNAME=learnpoints
+DBLOGIN=ascal
+DBPASSWORD=webteam@2018
+DocumentRoot=www
+
+FISA_URI=https://db3x.sinica.edu.tw/docdb/fisa/index.php
+FISA_Client_ID=e7f7b8efe60ae4887024382246a7019492ae4862
+FISA_Cleint_Secret=PqdHb2KyJQsvJou6sWvYjUcq0Ov5BNpqdD8oGTXpJpUtNpAgm6
+FISA_Webservice_URL=https://db3x.sinica.edu.tw/docdb/fisa/serverMain.php
+FISA_Webservice_Account=ethicscredit
+FISA_Webservice_Password=2BSknqhBNFRFH8V
+
+Proxy=http://140.109.12.18:3128
