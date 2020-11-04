@@ -128,9 +128,9 @@ func (m *MySQL) SelMultiple(sql string, t interface{}, cond ...interface{}) (*[]
 }
 
 // 執行SQL指令
-func (m *MySQL) Exec(sql string, cond ...interface{}) (interface{}, error) {
+func (m *MySQL) Exec(sqlstr string, cond ...interface{}) (interface{}, error) {
    m.CheckAndReConnect()
-   stmt, err := m.Conn.Prepare(sql)
+   stmt, err := m.Conn.Prepare(sqlstr)
    if err != nil {
       return nil, fmt.Errorf("Prepare SQL error: %v", err)
    }
@@ -139,7 +139,7 @@ func (m *MySQL) Exec(sql string, cond ...interface{}) (interface{}, error) {
    if err != nil {
       return nil, err
    }
-   id, err := res.LastInsertId()
+   id, err := res.(sql.Result).LastInsertId()
    if err != nil {
       return nil, err
    }
@@ -161,6 +161,28 @@ func (m *MySQL) RowExists(sqlstr string, args ...interface{}) bool {
       }
    } 
    return exists
+}
+
+// bl, err := conn.RowExistsAndError(sql, user.Name)
+func(m *MySQL) RowExistsAndError(sql string, args ...interface{})(bool, error) {
+   m.CheckAndReConnect()
+   rows, err := m.Conn.Query(sql, args...)
+   if err != nil {
+      if err.Error() == "sql: no rows in result set" {
+         return false, nil
+      } else {
+         return false, err
+      }
+   }
+   count := 0
+   for rows.Next() {
+      _ = rows.Scan(&count)
+   }   
+   if count > 0 {
+      return true, nil
+   } else {
+      return false, nil
+   }
 }
 
 // 結束資料庫連線

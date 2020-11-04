@@ -48,3 +48,8 @@ if err != nil {
    return
 }
 ```
+
+* Get Insert's auto imcrement key
+```
+id, err := res.(sql.Result).LastInsertId()
+```
