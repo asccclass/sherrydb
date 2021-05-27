@@ -3,6 +3,7 @@
 ### How to use it ?
 * install
 ```
+go get github.com/go-sql-driver/mysql
 go get github.com/asccclass/sherrydb/mysql
 ```
 
