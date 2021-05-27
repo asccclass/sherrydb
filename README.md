@@ -54,7 +54,7 @@ var ip,mac,beaconID,lastupdate string
 st := sherrytime.NewSherryTime("Asia/Taipei", "-")  // Initial
 if err := row.Scan(&ip,&mac,&beaconID,&lastupdate); err != nil {
    switch {
-      case err == sql.ErrNoRows:   // No data
+      case err == sql.ErrNoRows:   // No data. Since you use sql.ErrNoRows, you need import "database/sql"
          // do your code
          return
    }
