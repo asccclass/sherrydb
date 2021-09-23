@@ -11,6 +11,7 @@ import (
 
 // 資料庫連線設定
 type DBConnect struct {
+   DBMSType	string	// 資料庫類別, ex:MySQL
    DBMS     string   // 資料庫管理系統名稱（皆小寫）
    DbServer string   // 資料庫主機
    DbPort   string   // 資料庫主機對外服務port
