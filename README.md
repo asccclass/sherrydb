@@ -29,7 +29,7 @@ func main() {
    dbconnect.DbLogin = os.Getenv("DBLOGIN")
    dbconnect.DbPasswd = os.Getenv("DBPASSWORD")
 
-   conn, err := sherrydb.NewSherryDB(dbconnect)
+   conn, err := SherryDB.NewSherryDB(dbconnect)
    defer conn.Conn.Close()
    if err != nil {
       fmt.Printf("%v", err)
