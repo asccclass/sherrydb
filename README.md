@@ -85,3 +85,6 @@ if err != nil {
 ```
 id, err := res.(sql.Result).LastInsertId()
 ```
+
+### 其他工具
+* [clickHouse client](https://github.com/uptrace/go-clickhouse)
