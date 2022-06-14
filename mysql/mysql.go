@@ -1,6 +1,7 @@
 package SherryDB
 
 import (
+   "strconv"
    "database/sql"
    _ "github.com/go-sql-driver/mysql"
    "encoding/json"
@@ -126,6 +127,29 @@ func (m *MySQL) SelMultiple(sql string, t interface{}, cond ...interface{}) (*[]
       vals = append(vals, s.Interface())
    }
    return &vals, nil
+}
+
+// 執行SQL指令並回傳新ID
+func (m *MySQL) Insert(sqlstr string, cond ...string) (string, error) {
+   m.CheckAndReConnect()
+   stmt, err := m.Conn.Prepare(sqlstr)
+   if err != nil {
+      return "", fmt.Errorf("Prepare SQL error: %v", err)
+   }
+   t := make([]interface{}, len(cond))
+   for i, val := range cond {
+      t[i] = val
+   }
+   res, err := stmt.Exec(t)
+   defer stmt.Close()
+   if err != nil {
+      return "", err
+   }
+   id, err := res.(sql.Result).LastInsertId()
+   if err != nil {
+      return "", err
+   }
+   return strconv.FormatInt(id, 10), nil
 }
 
 // 執行SQL指令
