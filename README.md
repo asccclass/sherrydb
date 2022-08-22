@@ -42,7 +42,7 @@ func main() {
 ### Create Record
 
 ```
-sql := "insert into beacon(ip,mac,beaconID,lastupdate) value(?,?,?,?)"
+sql := "insert into beacon(ip,mac,beaconID,lastupdate) values(?,?,?,?)"
 _, err = conn.Conn.Exec(sql, ip.LocalIP,ip.MACAdress,beaconID,st.Now())
 ```
 
