@@ -39,6 +39,18 @@ func main() {
 }
 ```
 
+* Use with staticfileserver
+
+```
+conn, err := SherryDB.NewSherryDB(app.Srv.Dbconnect)
+defer conn.Conn.Close()
+if err != nil {
+   fmt.Printf("%v", err)
+} else {
+   fmt.Printf("Connect ok %v", conn)
+}
+```
+
 ### Create Record
 
 ```
