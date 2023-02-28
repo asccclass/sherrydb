@@ -42,7 +42,7 @@ func main() {
 * Use with staticfileserver
 
 ```
-conn, err := SherryDB.NewSherryDB(app.Srv.Dbconnect)
+conn, err := SherryDB.NewSherryDB(*app.Srv.Dbconnect)
 defer conn.Conn.Close()
 if err != nil {
    fmt.Printf("%v", err)
@@ -74,6 +74,28 @@ if err := row.Scan(&ip,&mac,&beaconID,&lastupdate); err != nil {
    return
 }
 ```
+
+* multiple rows
+
+```
+rows, err := conn.Conn.Query("select id,signCount,clonewarning from registeredcredentials where username=?", username)
+defer rows.Close()
+if err != nil {
+   if err == sql.ErrNoRows {  // No data. Since you use sql.ErrNoRows, you need import "database/sql"
+      // DO your code 
+      return
+   }
+   return err
+}
+for rows.Next() {
+   var r RegisteredCredential
+   err := rows.Scan(&r.ID,&r.SignCount,&r.CloneWarning);
+   if err != nil {
+      return nil, err
+   }
+}
+```
+
 
 ### Update Record
 
