@@ -5,6 +5,9 @@
 ```
 go get github.com/go-sql-driver/mysql
 go get github.com/asccclass/sherrydb/mysql
+
+// or
+go mod init
 ```
 
 ### Usage
