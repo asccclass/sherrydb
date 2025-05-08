@@ -1,127 +1,95 @@
-## 資料庫連線工具 SherryDB
+# SherryDB library
 
-### How to use it ?
-* install
-```
+SherryDB is a lightweight database connection utility written in Go.  
+It simplifies connecting to databases like MySQL and SQLite using environment variables, making it ideal for small projects, prototyping, or educational purposes.
+
+## Features
+
+- Supports multiple database management systems (DBMS), including MySQL and SQLite.
+- Utilizes environment variables for configuration, enhancing flexibility and security.
+- Provides a straightforward API for establishing and managing database connections.
+- Includes example code to help you get started quickly.
+
+## Installation
+
+To install SherryDB, use `go get` to fetch the necessary packages:
+
+```bash
 go get github.com/go-sql-driver/mysql
 go get github.com/asccclass/sherrydb/mysql
-
-// or
-go mod init
 ```
 
-### Usage
-* Connect database
+Alternatively, if you're using Go modules, initialize your module:
+
+```bash
+go mod init your_module_name
 ```
+
+## Usage
+
+### Setting Up Environment Variables
+
+Before running your application, set the following environment variables to configure your database connection:
+
+- `DBMS`: The type of your database management system (e.g., `mysql` or `sqlite`).
+- `DBSERVER`: The address of your database server (e.g., `localhost`).
+- `DBPORT`: The port number your database server is listening on (e.g., `3306`).
+- `DBNAME`: The name of your database.
+- `DBLOGIN`: Your database username.
+- `DBPASSWORD`: Your database password.
+
+You can set these variables in your shell or define them in an `.env` file.
+
+### Example Code
+
+Here's a simple example demonstrating how to use SherryDB to connect to a database:
+
+```go
 package main
 
 import (
-   "fmt"
-   "github.com/asccclass/sherrydb/mysql"
-   "os"
+    "fmt"
+    "os"
+
+    "github.com/asccclass/sherrydb/mysql"
 )
 
-var dbconnect SherryDB.DBConnect
-
 func main() {
-   // check DB Information
-   dbconnect.DBMS = os.Getenv("DBMS")
-   dbconnect.DbServer = os.Getenv("DBSERVER")
-   dbconnect.DbPort = os.Getenv("DBPORT")
-   dbconnect.DbName = os.Getenv("DBNAME")
-   dbconnect.DbLogin = os.Getenv("DBLOGIN")
-   dbconnect.DbPasswd = os.Getenv("DBPASSWORD")
+    dbconnect := mysql.DBConnect{
+        DBMS:     os.Getenv("DBMS"),
+        DbServer: os.Getenv("DBSERVER"),
+        DbPort:   os.Getenv("DBPORT"),
+        DbName:   os.Getenv("DBNAME"),
+        DbLogin:  os.Getenv("DBLOGIN"),
+        DbPasswd: os.Getenv("DBPASSWORD"),
+    }
 
-   conn, err := SherryDB.NewSherryDB(dbconnect)
-   defer conn.Conn.Close()
-   if err != nil {
-      fmt.Printf("%v", err)
-   } else {
-      fmt.Printf("Connect ok %v", conn)
-   }
+    conn, err := mysql.NewSherryDB(dbconnect)
+    if err != nil {
+        fmt.Printf("Connection error: %v\n", err)
+        return
+    }
+    defer conn.Conn.Close()
+
+    fmt.Printf("Connected successfully: %v\n", conn)
 }
 ```
 
-* Use with staticfileserver
+This code initializes a new database connection using the parameters provided via environment variables.
 
-```
-conn, err := SherryDB.NewSherryDB(*app.Srv.Dbconnect)
-defer conn.Conn.Close()
-if err != nil {
-   fmt.Printf("%v", err)
-} else {
-   fmt.Printf("Connect ok %v", conn)
-}
-```
+## Project Structure
 
-### Create Record
+- `mysql/`: Contains the MySQL-specific implementation of the SherryDB connector.
+- `sqlite/`: Contains the SQLite-specific implementation of the SherryDB connector.
+- `example.go`: Provides an example of how to use SherryDB in your application.
+- `envfile`: A sample file demonstrating how to set environment variables.
+- `go.mod` and `go.sum`: Go module files managing dependencies.
+- `makefile`: Automates build and setup tasks.
 
-```
-sql := "insert into beacon(ip,mac,beaconID,lastupdate) values(?,?,?,?)"
-_, err = conn.Conn.Exec(sql, ip.LocalIP,ip.MACAdress,beaconID,st.Now())
-```
+## Contributing
 
-### Read record
+Contributions are welcome! If you have suggestions for improvements or have found bugs, please open an issue or submit a pull request.
 
-```
-row := conn.Conn.QueryRow("select ip,mac,beaconID,lastupdate from beacon where mac=?", ip.MACAddress)
-var ip,mac,beaconID,lastupdate string
-st := sherrytime.NewSherryTime("Asia/Taipei", "-")  // Initial
-if err := row.Scan(&ip,&mac,&beaconID,&lastupdate); err != nil {
-   switch {
-      case err == sql.ErrNoRows:   // No data. Since you use sql.ErrNoRows, you need import "database/sql"
-         // do your code
-         return
-   }
-   fmt.Println(err.Error())
-   return
-}
-```
+## License
 
-* multiple rows
-
-```
-rows, err := conn.Conn.Query("select id,signCount,clonewarning from registeredcredentials where username=?", username)
-defer rows.Close()
-if err != nil {
-   if err == sql.ErrNoRows {  // No data. Since you use sql.ErrNoRows, you need import "database/sql"
-      // DO your code 
-      return
-   }
-   return err
-}
-for rows.Next() {
-   var r RegisteredCredential
-   err := rows.Scan(&r.ID,&r.SignCount,&r.CloneWarning);
-   if err != nil {
-      return nil, err
-   }
-}
-```
-
-
-### Update Record
-
-```
-sql := "update beacon set ip=?,mac=?,beaconID=?,lastupdate=? where mac=?"
-conn.Conn.Exec(sql, ip.LocalIP,ip.MACAdress,beaconID,st.Now(),ip.MACAddress)
-```
-
-* DoreSelOne
-```
-X := Ranks{}
-val, err := conn.DoreSelOne("select * from rank where rankID=?", &X, rankID)
-if err != nil {
-   w.WriteHeader(http.StatusInternalServerError)
-   fmt.Fprintf(w, "{\"errMsg\": \"Record not found.\"}")
-   return
-}
-```
-
-* Get Insert's auto imcrement key
-```
-id, err := res.(sql.Result).LastInsertId()
-```
-
-### 其他工具
-* [clickHouse client](https://github.com/uptrace/go-clickhouse)
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
